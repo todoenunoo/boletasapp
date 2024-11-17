@@ -52,8 +52,18 @@
       const sendEmailForm = document.getElementById("send-email-form");
       const pdfFileInput = document.getElementById("pdf-file");
 
+      // Verificar si no hay productos en localStorage, agregar productos de ejemplo
+      if (!localStorage.getItem("products")) {
+        const sampleProducts = [
+          { name: "Producto 1", price: 100 },
+          { name: "Producto 2", price: 200 },
+          { name: "Producto 3", price: 300 }
+        ];
+        localStorage.setItem("products", JSON.stringify(sampleProducts));
+      }
+
       // Cargar productos desde localStorage
-      const products = JSON.parse(localStorage.getItem("products")) || [];
+      const products = JSON.parse(localStorage.getItem("products"));
 
       // Cargar los productos en el dropdown
       products.forEach((product, index) => {
@@ -63,24 +73,19 @@
         productSelect.appendChild(option);
       });
 
-      // Arreglo para el carrito
       const cart = [];
 
       // Agregar productos al carrito
       boletaForm.addEventListener("submit", (e) => {
         e.preventDefault();
-        
+
         const selectedIndex = productSelect.value;
         const quantity = parseInt(document.getElementById("product-quantity").value);
         const product = products[selectedIndex];
-        
+
         if (quantity > 0) {
-          // Agregar el producto al carrito
           cart.push({ ...product, quantity });
-          
-          // Actualizar la vista del carrito
           updateCart();
-          // Calcular el total
           updateTotal();
         }
       });
@@ -93,26 +98,28 @@
           li.textContent = `${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`;
           cartList.appendChild(li);
         });
+        console.log("Carrito actualizado:", cart); // Verificar que el carrito se actualiza correctamente
       }
 
       // Función para actualizar el total
       function updateTotal() {
         let total = 0;
-        cart.forEach(item => {
+        cart.forEach((item) => {
           total += item.price * item.quantity;
         });
         totalPrice.textContent = total.toFixed(2);
+        console.log("Total actualizado:", total); // Verificar el valor total
       }
 
-      // Función para generar el PDF
+      // Generar boleta en PDF
       generatePdfButton.addEventListener("click", () => {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
 
         doc.text("Boleta de Compra", 20, 10);
-        
+
         let y = 20;
-        cart.forEach(item => {
+        cart.forEach((item) => {
           const text = `${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`;
           doc.text(text, 20, y);
           y += 10;
@@ -120,20 +127,20 @@
 
         doc.text(`Total: $${totalPrice.textContent}`, 20, y);
 
-        // Convertir el PDF a Blob y asignarlo al input de archivo
-        doc.save("boleta_compra.pdf"); 
+        // Convertir el PDF a blob para enviarlo
         const pdfBlob = doc.output("blob");
-        const file = new File([pdfBlob], "boleta_compra.pdf", { type: "application/pdf" });
 
+        // Crear un archivo y agregarlo al formulario
+        const pdfFile = new File([pdfBlob], "boleta_compra.pdf", { type: "application/pdf" });
         const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
+        dataTransfer.items.add(pdfFile);
         pdfFileInput.files = dataTransfer.files;
 
-        // Mostrar formulario de envío
+        // Mostrar el formulario de envío
         sendEmailForm.style.display = "block";
+        alert("Boleta generada. Ahora puedes enviarla por correo.");
       });
     });
   </script>
 </body>
 </html>
-
