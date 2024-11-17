@@ -50,7 +50,6 @@
       const totalPriceElement = document.getElementById("total-price");
       const sendEmailForm = document.getElementById("send-email-form");
       const emailBodyInput = document.getElementById("email-body");
-      const sendEmailButton = document.getElementById("send-email");
       
       // Agregar productos al carrito
       document.getElementById("boleta-form").addEventListener("submit", (event) => {
@@ -101,7 +100,8 @@
       }
 
       // Enviar el formulario
-      sendEmailButton.addEventListener("click", () => {
+      sendEmailForm.addEventListener("submit", () => {
+        // Se envía el formulario con los datos directamente por correo
         sendEmailForm.submit();
       });
     });
@@ -110,4 +110,3 @@
   <script src="js/scripts.js" defer></script>
 </body>
 </html>
-
