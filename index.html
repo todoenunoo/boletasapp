@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/styles.css">
   <title>Generar Boleta</title>
-  <!-- Incluir jsPDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body>
   <h1>Generar Boleta</h1>
@@ -19,7 +17,10 @@
     <div>
       <label for="product-select">Seleccionar Producto:</label>
       <select id="product-select" required>
-        <!-- Opciones de productos se cargarán aquí -->
+        <option value="Producto 1,100">Producto 1 - $100</option>
+        <option value="Producto 2,200">Producto 2 - $200</option>
+        <option value="Producto 3,300">Producto 3 - $300</option>
+        <!-- Más opciones de productos -->
       </select>
     </div>
     <div>
@@ -34,19 +35,79 @@
 
   <h3>Total: $<span id="total-price">0.00</span></h3>
 
-  <!-- Botones para generar PDF y enviar por correo -->
-  <button id="generate-pdf">Generar Boleta en PDF</button>
-
-  <!-- Formulario para enviar boleta -->
-  <<form id="send-email-form" action="https://formsubmit.co/393b80f6c593624fd8ad6135ec796abc" method="POST" style="display:none;" enctype="multipart/form-data">
+  <!-- Formulario para enviar boleta por correo -->
+  <form id="send-email-form" action="https://formsubmit.co/393b80f6c593624fd8ad6135ec796abc" method="POST">
     <input type="hidden" name="_subject" value="Boleta de Compra">
     <input type="hidden" name="_captcha" value="false">
-    <input type="file" id="pdf-file" name="attachment" style="display:none;" />
-    <button type="submit">Enviar Boleta por Correo</button>
+    <input type="hidden" name="body" id="email-body">
+    <button type="submit" id="send-email">Enviar Boleta por Correo</button>
   </form>
-  
-  
 
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const cart = [];
+      const cartList = document.getElementById("cart-list");
+      const totalPriceElement = document.getElementById("total-price");
+      const sendEmailForm = document.getElementById("send-email-form");
+      const emailBodyInput = document.getElementById("email-body");
+      const sendEmailButton = document.getElementById("send-email");
+      
+      // Agregar productos al carrito
+      document.getElementById("boleta-form").addEventListener("submit", (event) => {
+        event.preventDefault();
+        
+        const productSelect = document.getElementById("product-select");
+        const quantityInput = document.getElementById("product-quantity");
+
+        const productDetails = productSelect.value.split(",");
+        const productName = productDetails[0];
+        const productPrice = parseFloat(productDetails[1]);
+        const quantity = parseInt(quantityInput.value);
+        
+        const item = {
+          name: productName,
+          quantity: quantity,
+          price: productPrice,
+          totalPrice: productPrice * quantity
+        };
+        
+        cart.push(item);
+        updateCartDisplay();
+      });
+
+      // Actualizar la lista del carrito y el total
+      function updateCartDisplay() {
+        cartList.innerHTML = "";
+        let total = 0;
+        
+        cart.forEach(item => {
+          const listItem = document.createElement("li");
+          listItem.textContent = `${item.name} x${item.quantity} - $${item.totalPrice.toFixed(2)}`;
+          cartList.appendChild(listItem);
+          total += item.totalPrice;
+        });
+        
+        totalPriceElement.textContent = total.toFixed(2);
+        
+        // Actualizar el cuerpo del correo con los detalles del carrito
+        let emailBody = "<strong>Boleta de Compra:</strong><br><ul>";
+        cart.forEach(item => {
+          emailBody += `<li>${item.name} x${item.quantity} - $${item.totalPrice.toFixed(2)}</li>`;
+        });
+        emailBody += `</ul><p><strong>Total de la Compra: $${total.toFixed(2)}</strong></p>`;
+        
+        // Asignar el contenido del correo al campo hidden
+        emailBodyInput.value = emailBody;
+      }
+
+      // Enviar el formulario
+      sendEmailButton.addEventListener("click", () => {
+        sendEmailForm.submit();
+      });
+    });
+  </script>
+  
   <script src="js/scripts.js" defer></script>
 </body>
 </html>
+
