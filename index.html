@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/styles.css">
+  <title>Generar Boleta</title>
+  <!-- Incluir jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <h1>Generar Boleta</h1>
+  
+  <!-- Formulario para agregar productos al carrito -->
+  <form id="boleta-form">
+    <div>
+      <label for="product-select">Seleccionar Producto:</label>
+      <select id="product-select" required>
+        <!-- Opciones de productos se cargarán aquí -->
+      </select>
+    </div>
+    <div>
+      <label for="product-quantity">Cantidad:</label>
+      <input type="number" id="product-quantity" min="1" required>
+    </div>
+    <button type="submit">Agregar al Carrito</button>
+  </form>
+
+  <h2>Carrito de Compras</h2>
+  <ul id="cart-list"></ul> <!-- Lista del carrito -->
+
+  <h3>Total: $<span id="total-price">0.00</span></h3>
+
+  <!-- Botones para generar PDF y enviar por correo -->
+  <button id="generate-pdf">Generar Boleta en PDF</button>
+
+  <!-- Formulario para enviar boleta -->
+  <form id="send-email-form" action="https://formsubmit.co/boletasystem@gmail.com" method="POST" style="display:none;" enctype="multipart/form-data">
+    <input type="hidden" name="_subject" value="Boleta de Compra">
+    <input type="hidden" name="_captcha" value="false">
+    <input type="file" id="pdf-file" name="attachment" style="display:none;" />
+    <button type="submit">Enviar Boleta por Correo</button>
+  </form>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const productSelect = document.getElementById("product-select");
+      const cartList = document.getElementById("cart-list");
+      const totalPrice = document.getElementById("total-price");
+      const boletaForm = document.getElementById("boleta-form");
+      const generatePdfButton = document.getElementById("generate-pdf");
+      const sendEmailForm = document.getElementById("send-email-form");
+      const pdfFileInput = document.getElementById("pdf-file");
+
+      // Cargar productos desde localStorage
+      const products = JSON.parse(localStorage.getItem("products")) || [];
+
+      // Cargar los productos en el dropdown
+      products.forEach((product, index) => {
+        const option = document.createElement("option");
+        option.value = index;
+        option.textContent = `${product.name} - $${product.price}`;
+        productSelect.appendChild(option);
+      });
+
+      // Arreglo para el carrito
+      const cart = [];
+
+      // Agregar productos al carrito
+      boletaForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        
+        const selectedIndex = productSelect.value;
+        const quantity = parseInt(document.getElementById("product-quantity").value);
+        const product = products[selectedIndex];
+        
+        if (quantity > 0) {
+          // Agregar el producto al carrito
+          cart.push({ ...product, quantity });
+          
+          // Actualizar la vista del carrito
+          updateCart();
+          // Calcular el total
+          updateTotal();
+        }
+      });
+
+      // Función para actualizar el carrito
+      function updateCart() {
+        cartList.innerHTML = "";
+        cart.forEach((item) => {
+          const li = document.createElement("li");
+          li.textContent = `${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`;
+          cartList.appendChild(li);
+        });
+      }
+
+      // Función para actualizar el total
+      function updateTotal() {
+        let total = 0;
+        cart.forEach(item => {
+          total += item.price * item.quantity;
+        });
+        totalPrice.textContent = total.toFixed(2);
+      }
+
+      // Función para generar el PDF
+      generatePdfButton.addEventListener("click", () => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        doc.text("Boleta de Compra", 20, 10);
+        
+        let y = 20;
+        cart.forEach(item => {
+          const text = `${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`;
+          doc.text(text, 20, y);
+          y += 10;
+        });
+
+        doc.text(`Total: $${totalPrice.textContent}`, 20, y);
+
+        // Convertir el PDF a Blob y asignarlo al input de archivo
+        doc.save("boleta_compra.pdf"); 
+        const pdfBlob = doc.output("blob");
+        const file = new File([pdfBlob], "boleta_compra.pdf", { type: "application/pdf" });
+
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        pdfFileInput.files = dataTransfer.files;
+
+        // Mostrar formulario de envío
+        sendEmailForm.style.display = "block";
+      });
+    });
+  </script>
+</body>
+</html>
+
