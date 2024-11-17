@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const cartList = document.getElementById("cart-list");
   const totalPrice = document.getElementById("total-price");
   const boletaForm = document.getElementById("boleta-form");
-  const generatePdfButton = document.getElementById("generate-pdf");
+  const sendEmailButton = document.getElementById("send-email");
   const sendEmailForm = document.getElementById("send-email-form");
   const pdfFileInput = document.getElementById("pdf-file");
 
@@ -56,33 +56,62 @@ document.addEventListener("DOMContentLoaded", () => {
     totalPrice.textContent = total.toFixed(2);
   }
 
-  // Generar boleta en PDF
-  generatePdfButton.addEventListener("click", () => {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+  // Generar el cuerpo del correo
+  function generateEmailBody() {
+    let emailBody = `
+      <h2>Boleta de Compra</h2>
+      <p><strong>Gracias por tu compra. A continuación, se detalla tu boleta:</strong></p>
+      <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; margin-bottom: 20px;">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>`;
 
-    doc.text("Boleta de Compra", 20, 10);
-
-    let y = 20;
-    cart.forEach((item) => {
-      const text = `${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`;
-      doc.text(text, 20, y);
-      y += 10;
+    // Agregar los productos al cuerpo del correo
+    cart.forEach(item => {
+      emailBody += `
+        <tr>
+          <td>${item.name}</td>
+          <td>${item.quantity}</td>
+          <td>$${item.price}</td>
+          <td>$${(item.price * item.quantity).toFixed(2)}</td>
+        </tr>`;
     });
 
-    doc.text(`Total: $${totalPrice.textContent}`, 20, y);
+    emailBody += `</tbody></table>`;
 
-    // Convertir el PDF a blob para enviarlo
-    const pdfBlob = doc.output("blob");
+    // Total de la compra
+    emailBody += `<p><strong>Total de la Compra: $${totalPrice.textContent}</strong></p>`;
 
-    // Crear un archivo y agregarlo al formulario
-    const pdfFile = new File([pdfBlob], "boleta_compra.pdf", { type: "application/pdf" });
-    const dataTransfer = new DataTransfer();
-    dataTransfer.items.add(pdfFile);
-    pdfFileInput.files = dataTransfer.files;
+    // Dirección de envío
+    emailBody += `<p><strong>Dirección de Envío:</strong> Calle Ficticia 123, Ciudad, País</p>`;
 
-    // Mostrar el formulario de envío
-    sendEmailForm.style.display = "block";
-    alert("Boleta generada. Ahora puedes enviarla por correo.");
+    // Mensaje adicional
+    emailBody += `<p><strong>Gracias por tu preferencia. ¡Esperamos verte pronto!</strong></p>
+                  <p>Este es un correo automatizado, por favor no respondas.</p>`;
+
+    return emailBody;
+  }
+
+  // Función para enviar el correo
+  sendEmailButton.addEventListener("click", function(event) {
+    event.preventDefault();
+
+    // Generar el cuerpo del correo
+    const emailBody = generateEmailBody();
+
+    // Asignar el cuerpo generado al campo 'body' del formulario
+    document.getElementById('email-body').value = emailBody;
+
+    // Enviar el formulario
+    sendEmailForm.submit();
   });
+
+  // Mostrar el formulario de envío después de generar el PDF
+  sendEmailForm.style.display = "none";  // Escondido inicialmente
 });
