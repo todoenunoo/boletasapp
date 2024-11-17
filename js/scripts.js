@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Cargar productos desde localStorage
   const products = JSON.parse(localStorage.getItem("products")) || [];
+  console.log("Productos cargados:", products);  // Depuración
 
   // Cargar los productos en el dropdown
   products.forEach((product, index) => {
@@ -27,6 +28,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectedIndex = productSelect.value;
     const quantity = parseInt(document.getElementById("product-quantity").value);
     const product = products[selectedIndex];
+
+    console.log("Producto seleccionado:", product);  // Depuración
+    console.log("Cantidad:", quantity);  // Depuración
 
     if (quantity > 0) {
       cart.push({ ...product, quantity });
