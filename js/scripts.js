@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Título de la boleta
     doc.setFontSize(16);
-    doc.text("Boleta de Compra", 20, 10);
+    doc.text("Boleta de Compra", 105, 10, null, null, "center");
 
     // Dirección del cliente
     doc.setFontSize(12);
@@ -75,10 +75,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Encabezado de la tabla de productos
     let y = 30;
     doc.setFontSize(12);
-    doc.text("Producto", 20, y);
-    doc.text("Cantidad", 120, y);
+
+    // Centrar los encabezados de la tabla
+    doc.text("Producto", 40, y);
+    doc.text("Cantidad", 100, y);
     doc.text("Precio Unitario", 140, y);
-    doc.text("Subtotal", 170, y);
+    doc.text("Subtotal", 180, y);
     y += 10;
 
     // Línea divisoria para la cabecera de la tabla
@@ -88,19 +90,30 @@ document.addEventListener("DOMContentLoaded", () => {
     // Lista de productos
     let total = 0;
     cart.forEach((item) => {
-      doc.text(item.name, 20, y);
-      doc.text(item.quantity.toString(), 120, y);
-      doc.text(`$${item.price.toFixed(2)}`, 140, y); // Precio unitario
-      const subtotal = item.price * item.quantity;
-      doc.text(`$${subtotal.toFixed(2)}`, 170, y); // Subtotal
+      const productName = item.name;
+      const quantity = item.quantity;
+      const priceUnit = item.price;
+      const subtotal = priceUnit * quantity;
+
+      // Centramos el texto de cada producto, cantidad, precio unitario y subtotal
+      const productWidth = 40;
+      const quantityWidth = 100;
+      const priceWidth = 140;
+      const subtotalWidth = 180;
+
+      doc.text(productName, productWidth, y, null, null, "center");
+      doc.text(quantity.toString(), quantityWidth, y, null, null, "center");
+      doc.text(`$${priceUnit.toFixed(2)}`, priceWidth, y, null, null, "center");
+      doc.text(`$${subtotal.toFixed(2)}`, subtotalWidth, y, null, null, "center");
       y += 10;
       total += subtotal;
 
       // Líneas divisorias por producto (verticales)
       doc.setLineWidth(0.5);
-      doc.line(120, y - 10, 120, y); // Línea vertical entre cantidad y precio unitario
-      doc.line(140, y - 10, 140, y); // Línea vertical entre precio unitario y subtotal
-      doc.line(170, y - 10, 170, y); // Línea vertical entre subtotal y fin de la tabla
+      doc.line(productWidth, y - 10, productWidth, y); // Línea vertical entre Producto y Cantidad
+      doc.line(quantityWidth, y - 10, quantityWidth, y); // Línea vertical entre Cantidad y Precio Unitario
+      doc.line(priceWidth, y - 10, priceWidth, y); // Línea vertical entre Precio Unitario y Subtotal
+      doc.line(subtotalWidth, y - 10, subtotalWidth, y); // Línea vertical entre Subtotal y el final
 
       // Línea divisoria por cada producto
       doc.line(20, y, 190, y);
