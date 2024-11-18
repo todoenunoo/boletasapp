@@ -62,42 +62,50 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Título de la boleta
     doc.setFontSize(16);
-    doc.text("Boleta de Compra", 105, 10, null, null, 'center');
+    doc.text("Boleta de Compra", 20, 10);
+
+    // Dirección del cliente
     doc.setFontSize(12);
-    doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 20, 20);
-    doc.text(`Dirección del Cliente: ${customerAddress}`, 20, 25);
+    doc.text(`Dirección: ${customerAddress}`, 20, 20);
 
-    // Línea separadora
-    doc.line(20, 30, 190, 30);
+    // Crear una línea divisoria
+    doc.setLineWidth(0.5);
+    doc.line(20, 25, 190, 25);  // Dibuja una línea horizontal
 
-    // Encabezados de la tabla de productos
-    let y = 40;
+    // Encabezado de la tabla de productos
+    let y = 30;
+    doc.setFontSize(12);
     doc.text("Producto", 20, y);
     doc.text("Cantidad", 120, y);
     doc.text("Subtotal", 160, y);
-
-    // Línea separadora
     y += 10;
+
+    // Línea divisoria para la cabecera de la tabla
     doc.line(20, y, 190, y);
+    y += 5;
 
     // Lista de productos
     let total = 0;
-    cart.forEach((item, index) => {
-      y += 10;
+    cart.forEach((item) => {
       doc.text(item.name, 20, y);
       doc.text(item.quantity.toString(), 120, y);
       const subtotal = item.price * item.quantity;
       doc.text(`$${subtotal.toFixed(2)}`, 160, y);
+      y += 10;
       total += subtotal;
+
+      // Línea divisoria por producto
+      doc.line(20, y, 190, y);
+      y += 5;
     });
 
-    // Línea separadora
-    y += 10;
+    // Línea divisoria antes del total
     doc.line(20, y, 190, y);
+    y += 10;
 
     // Total final
-    y += 10;
-    doc.text(`Total: $${total.toFixed(2)}`, 120, y, null, null, 'center');
+    doc.setFontSize(14);
+    doc.text(`Total: $${total.toFixed(2)}`, 120, y);
 
     // Convertir el PDF a blob para enviarlo
     const pdfBlob = doc.output("blob");
