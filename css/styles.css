@@ -76,8 +76,12 @@
   }
   
   form input[type="number"] {
-    -moz-appearance: textfield;
+    -moz-appearance: textfield;   /* Firefox */
+    appearance: textfield;        /* Chrome, Edge, Safari */
+    -webkit-appearance: none;     /* Safari */
+    padding-right: 0px;           /* Elimina el padding adicional en algunos navegadores */
   }
+  
   
   form button {
     width: 100%;

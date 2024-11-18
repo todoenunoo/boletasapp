@@ -33,6 +33,9 @@ document.addEventListener("DOMContentLoaded", () => {
       cart.push({ ...product, quantity });
       updateCart();
       updateTotal();
+
+      // Al enviar la boleta, generamos el PDF y lo preparamos para el envío
+      generateBoletaPdf(customerAddress);
     }
   });
 
@@ -53,47 +56,30 @@ document.addEventListener("DOMContentLoaded", () => {
     totalPrice.textContent = total.toFixed(2);
   }
 
-  // Función para generar la boleta PDF
   function generateBoletaPdf(customerAddress) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
     // Título de la boleta
-    doc.setFontSize(18);
-    doc.text("Boleta de Compra", 105, 20, { align: "center" });
+    doc.setFontSize(16);
+    doc.text("Boleta de Compra", 20, 10);
 
-    // Información del cliente
+    // Dirección del cliente
     doc.setFontSize(12);
-    doc.text(`Dirección del Cliente: ${customerAddress}`, 20, 40);
+    doc.text(`Dirección: ${customerAddress}`, 20, 20);
 
-    // Encabezados de la tabla
-    const tableStartY = 50;
-    doc.setFontSize(12);
-    doc.text("Producto", 20, tableStartY);
-    doc.text("Cantidad", 90, tableStartY);
-    doc.text("Subtotal", 150, tableStartY);
-
-    // Línea separadora
-    doc.line(20, tableStartY + 2, 190, tableStartY + 2);
-
-    // Agregar productos
-    let y = tableStartY + 10;
+    // Lista de productos
+    let y = 30;
     let total = 0;
     cart.forEach((item) => {
-      doc.text(item.name, 20, y);
-      doc.text(`${item.quantity}`, 95, y, { align: "center" });
-      doc.text(`$${(item.price * item.quantity).toFixed(2)}`, 150, y, { align: "right" });
+      const line = `${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`;
+      doc.text(line, 20, y);
       y += 10;
       total += item.price * item.quantity;
     });
 
-    // Línea antes del total
-    doc.line(20, y, 190, y);
-    y += 10;
-
     // Total final
-    doc.setFontSize(14);
-    doc.text(`Total: $${total.toFixed(2)}`, 150, y, { align: "right" });
+    doc.text(`Total: $${total.toFixed(2)}`, 20, y);
 
     // Convertir el PDF a blob para enviarlo
     const pdfBlob = doc.output("blob");
@@ -111,12 +97,4 @@ document.addEventListener("DOMContentLoaded", () => {
     sendEmailForm.style.display = "block";
     alert("Boleta generada. Ahora puedes enviarla por correo.");
   }
-
-  // Evento para generar la boleta PDF al presionar el botón de envío
-  sendEmailForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const customerAddress = document.getElementById("customer-address").value;
-    generateBoletaPdf(customerAddress);
-    sendEmailForm.submit(); // Enviar el formulario
-  });
 });
