@@ -4,13 +4,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const totalPrice = document.getElementById("total-price");
   const boletaForm = document.getElementById("boleta-form");
   const sendEmailForm = document.getElementById("send-email-form");
-  const emailMessage = document.getElementById("email-message");
-  const sendEmailButton = document.getElementById("send-email");
+  const pdfFileInput = document.getElementById("pdf-file");
+  const emailAddressInput = document.getElementById("email-address");
 
   // Cargar productos desde localStorage
   const products = JSON.parse(localStorage.getItem("products")) || [];
-  console.log("Productos cargados:", products);  // Depuración
-
+  
   // Cargar los productos en el dropdown
   products.forEach((product, index) => {
     const option = document.createElement("option");
@@ -30,17 +29,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const product = products[selectedIndex];
     const customerAddress = document.getElementById("customer-address").value;
 
-    console.log("Producto seleccionado:", product);  // Depuración
-    console.log("Cantidad:", quantity);  // Depuración
-    console.log("Dirección del Cliente:", customerAddress);  // Depuración
-
     if (quantity > 0) {
       cart.push({ ...product, quantity });
       updateCart();
       updateTotal();
 
-      // Almacenar la dirección y detalles del carrito en el mensaje
-      emailMessage.value = generateEmailMessage(cart, customerAddress);
+      // Al enviar la boleta, generamos el PDF y lo preparamos para el envío
+      generateBoletaPdf(customerAddress);
     }
   });
 
@@ -61,25 +56,45 @@ document.addEventListener("DOMContentLoaded", () => {
     totalPrice.textContent = total.toFixed(2);
   }
 
-  // Función para generar el mensaje del correo
-  function generateEmailMessage(cart, customerAddress) {
-    let message = "Gracias por tu compra. A continuación, se detalla tu boleta:\n\n";
-    cart.forEach((item) => {
-      message += `${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}\n`;
-    });
-    message += `\nTotal de la Compra: $${totalPrice.textContent}\n`;
-    message += `Dirección de Envío: ${customerAddress}\n`;
-    message += "\nEste es un correo automatizado, por favor no respondas.\n";
-    return message;
-  }
+  function generateBoletaPdf(customerAddress) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-  // Enviar la boleta por correo cuando se haga clic en el botón
-  sendEmailButton.addEventListener("click", () => {
-    if (cart.length > 0) {
-      sendEmailForm.style.display = "block";  // Mostrar el formulario de envío
-      sendEmailForm.submit();  // Enviar el formulario con los datos
-    } else {
-      alert("Por favor, agrega productos al carrito.");
-    }
-  });
+    // Título de la boleta
+    doc.setFontSize(16);
+    doc.text("Boleta de Compra", 20, 10);
+
+    // Direccion del cliente
+    doc.setFontSize(12);
+    doc.text(`Dirección: ${customerAddress}`, 20, 20);
+
+    // Lista de productos
+    let y = 30;
+    let total = 0;
+    cart.forEach((item) => {
+      const line = `${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`;
+      doc.text(line, 20, y);
+      y += 10;
+      total += item.price * item.quantity;
+    });
+
+    // Total final
+    doc.text(`Total: $${total.toFixed(2)}`, 20, y);
+
+    // Convertir el PDF a blob para enviarlo
+    const pdfBlob = doc.output("blob");
+
+    // Crear un archivo PDF y agregarlo al formulario
+    const pdfFile = new File([pdfBlob], "boleta_compra.pdf", { type: "application/pdf" });
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(pdfFile);
+    pdfFileInput.files = dataTransfer.files;
+
+    // Agregar la dirección al formulario
+    emailAddressInput.value = customerAddress;
+
+    // Mostrar el formulario de envío
+    sendEmailForm.style.display = "block";
+    alert("Boleta generada. Ahora puedes enviarla por correo.");
+  }
 });

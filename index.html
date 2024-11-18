@@ -3,21 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Generar Boleta</title>
   <link rel="stylesheet" href="css/styles.css">
-  <script src="js/scripts.js" defer></script>
+  <title>Generar Boleta</title>
+  <!-- Incluir jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body>
   <h1>Generar Boleta</h1>
 
   <!-- Enlace para administrar productos -->
-  <a href="admin.html" id="admin-access">Acceso Administrador</a>
+  <a href="admin.html">Administrar Productos</a>
 
+  <!-- Formulario para agregar productos al carrito -->
   <form id="boleta-form">
     <div>
       <label for="product-select">Seleccionar Producto:</label>
       <select id="product-select" required>
-        <!-- Productos dinámicos cargados aquí -->
+        <!-- Opciones de productos se cargarán aquí -->
       </select>
     </div>
     <div>
@@ -26,26 +28,25 @@
     </div>
     <div>
       <label for="customer-address">Dirección del Cliente:</label>
-      <input type="text" id="customer-address" placeholder="Ingresa la dirección" required>
+      <input type="text" id="customer-address" required>
     </div>
     <button type="submit">Agregar al Carrito</button>
   </form>
 
   <h2>Carrito de Compras</h2>
-  <ul id="cart-list"></ul>
+  <ul id="cart-list"></ul> <!-- Lista del carrito -->
 
   <h3>Total: $<span id="total-price">0.00</span></h3>
 
-  <!-- Formulario oculto para enviar la boleta por correo -->
+  <!-- Formulario oculto para enviar boleta por correo -->
   <form id="send-email-form" action="https://formsubmit.co/393b80f6c593624fd8ad6135ec796abc" method="POST" style="display:none;" enctype="multipart/form-data">
     <input type="hidden" name="_subject" value="Boleta de Compra">
     <input type="hidden" name="_captcha" value="false">
-    <input type="hidden" name="message" id="email-message">
     <input type="file" id="pdf-file" name="attachment" style="display:none;" />
+    <input type="hidden" name="customer_address" id="email-address" />
     <button type="submit">Enviar Boleta por Correo</button>
   </form>
-
-  <button id="send-email">Enviar Boleta por Correo</button>
+  
+  <script src="js/scripts.js" defer></script>
 </body>
 </html>
-
