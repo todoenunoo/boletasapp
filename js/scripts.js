@@ -3,41 +3,44 @@ document.addEventListener("DOMContentLoaded", () => {
   const cartList = document.getElementById("cart-list");
   const totalPrice = document.getElementById("total-price");
   const boletaForm = document.getElementById("boleta-form");
-  const sendEmailButton = document.getElementById("send-email");
   const sendEmailForm = document.getElementById("send-email-form");
-  const boletaFileInput = document.getElementById("boleta-file");
-  const boletaMessageInput = document.getElementById("boleta-message");
+  const pdfFileInput = document.getElementById("pdf-file");
+  const customerAddressInput = document.getElementById("customer-address");
 
-  const products = [
-    { name: "Producto 1", price: 100 },
-    { name: "Producto 2", price: 200 },
-    { name: "Producto 3", price: 300 },
-  ];
+  // Cargar productos desde localStorage
+  const products = JSON.parse(localStorage.getItem("products")) || [];
 
-  let cart = [];
-  let boletaCount = 1;
+  function loadProducts() {
+    productSelect.innerHTML = '<option value="">Selecciona un producto</option>';
+    products.forEach((product, index) => {
+      const option = document.createElement("option");
+      option.value = index;
+      option.textContent = `${product.name} - $${product.price}`;
+      productSelect.appendChild(option);
+    });
+  }
 
-  // Cargar productos en el select
-  products.forEach((product, index) => {
-    const option = document.createElement("option");
-    option.value = index;
-    option.textContent = `${product.name} - $${product.price}`;
-    productSelect.appendChild(option);
-  });
+  loadProducts();
 
-  // Agregar producto al carrito
+  const cart = [];
+
   boletaForm.addEventListener("submit", (e) => {
     e.preventDefault();
+
     const selectedIndex = productSelect.value;
     const quantity = parseInt(document.getElementById("product-quantity").value);
-    const address = document.getElementById("customer-address").value;
+    const customerAddress = customerAddressInput.value.trim();
 
-    if (quantity > 0) {
-      const product = products[selectedIndex];
-      cart.push({ ...product, quantity, address });
-      updateCart();
-      updateTotal();
+    if (selectedIndex === "" || quantity <= 0 || !customerAddress) {
+      alert("Por favor, completa todos los campos.");
+      return;
     }
+
+    const product = products[selectedIndex];
+    cart.push({ ...product, quantity });
+
+    updateCart();
+    updateTotal();
   });
 
   function updateCart() {
@@ -57,47 +60,20 @@ document.addEventListener("DOMContentLoaded", () => {
     totalPrice.textContent = total.toFixed(2);
   }
 
-  // Enviar boleta por correo
-  sendEmailButton.addEventListener("click", () => {
-    if (cart.length === 0) {
-      alert("El carrito está vacío.");
-      return;
-    }
+  sendEmailForm.addEventListener("submit", (e) => {
+    const customerAddress = customerAddressInput.value.trim();
 
-    const address = cart[0].address; // Usar dirección del primer item
-    let boletaText = `========================================\n`;
-    boletaText += `           BOLETA DE COMPRA            \n`;
-    boletaText += `========================================\n\n`;
-    boletaText += `Dirección de Envío:\n${address}\n\n`;
-    boletaText += `Productos:\n`;
-    boletaText += `----------------------------------------\n`;
+    const content = `Boleta de Compra\n\n` +
+                    `Dirección del Cliente: ${customerAddress}\n\n` +
+                    `Productos:\n` +
+                    cart.map(item => `${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`).join("\n") +
+                    `\n\nTotal: $${totalPrice.textContent}`;
 
-    cart.forEach((item) => {
-      const line = `${item.name.padEnd(20)} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`;
-      boletaText += `${line}\n`;
-    });
+    const blob = new Blob([content], { type: "text/plain" });
+    const file = new File([blob], "boleta.txt", { type: "text/plain" });
 
-    boletaText += `----------------------------------------\n`;
-    boletaText += `Subtotal: $${totalPrice.textContent}\n`;
-    boletaText += `========================================\n`;
-    boletaText += `Total: $${totalPrice.textContent}\n`;
-    boletaText += `========================================\n\n`;
-    boletaText += `Gracias por su compra.\n`;
-
-    // Crear archivo de boleta
-    const boletaBlob = new Blob([boletaText], { type: "text/plain" });
-    const boletaFile = new File([boletaBlob], `boleta_${boletaCount}.txt`, { type: "text/plain" });
-
-    // Actualizar inputs del formulario
-    boletaMessageInput.value = `Boleta ${boletaCount}`;
     const dataTransfer = new DataTransfer();
-    dataTransfer.items.add(boletaFile);
-    boletaFileInput.files = dataTransfer.files;
-
-    // Incrementar número de boleta
-    boletaCount++;
-
-    // Enviar formulario
-    sendEmailForm.submit();
+    dataTransfer.items.add(file);
+    pdfFileInput.files = dataTransfer.files;
   });
 });

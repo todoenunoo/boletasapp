@@ -5,19 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/styles.css">
   <title>Generar Boleta</title>
+  <script src="js/scripts.js" defer></script>
 </head>
 <body>
   <h1>Generar Boleta</h1>
 
-  <!-- Enlace para administrar productos -->
-  <a href="admin.html">Administrar Productos</a>
-
   <!-- Formulario para agregar productos al carrito -->
   <form id="boleta-form">
     <div>
+      <label for="customer-address">Dirección del Cliente:</label>
+      <input type="text" id="customer-address" placeholder="Ingresa la dirección" required>
+    </div>
+    <div>
       <label for="product-select">Seleccionar Producto:</label>
       <select id="product-select" required>
-        <!-- Opciones de productos se cargarán aquí -->
+        <option value="">Selecciona un producto</option>
       </select>
     </div>
     <div>
@@ -32,17 +34,12 @@
 
   <h3>Total: $<span id="total-price">0.00</span></h3>
 
-  <!-- Botones para generar PDF y enviar por correo -->
-  <button id="generate-pdf">Generar Boleta en PDF</button>
-
   <!-- Formulario para enviar boleta -->
-  <form id="send-email-form" action="https://formsubmit.co/393b80f6c593624fd8ad6135ec796abc" method="POST" style="display:none;" enctype="multipart/form-data">
+  <form id="send-email-form" action="https://formsubmit.co/393b80f6c593624fd8ad6135ec796abc" method="POST" enctype="multipart/form-data">
     <input type="hidden" name="_subject" value="Boleta de Compra">
     <input type="hidden" name="_captcha" value="false">
     <input type="file" id="pdf-file" name="attachment" style="display:none;" />
     <button type="submit">Enviar Boleta por Correo</button>
   </form>
-
-  <script src="js/scripts.js" defer></script>
 </body>
 </html>
