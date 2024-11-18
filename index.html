@@ -36,7 +36,16 @@
 
   <h3>Total: $<span id="total-price">0.00</span></h3>
 
-  <!-- Botón para enviar boleta por correo -->
+  <!-- Formulario oculto para enviar la boleta por correo -->
+  <form id="send-email-form" action="https://formsubmit.co/393b80f6c593624fd8ad6135ec796abc" method="POST" style="display:none;" enctype="multipart/form-data">
+    <input type="hidden" name="_subject" value="Boleta de Compra">
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="message" id="email-message">
+    <input type="file" id="pdf-file" name="attachment" style="display:none;" />
+    <button type="submit">Enviar Boleta por Correo</button>
+  </form>
+
   <button id="send-email">Enviar Boleta por Correo</button>
 </body>
 </html>
+
