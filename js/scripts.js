@@ -62,74 +62,70 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Título de la boleta
     doc.setFontSize(16);
-    doc.text("BOLETA DE COMPRA", 105, 10, null, null, "center");
+    doc.text("BOLETA DE COMPRA", 20, 10);
 
-    // Dirección del cliente (en mayúsculas)
+    // Direccion del cliente
     doc.setFontSize(12);
-    doc.text(`DIRECCIÓN: ${customerAddress.toUpperCase()}`, 20, 20);
-
-    // Crear una línea divisoria
-    doc.setLineWidth(0.5);
-    doc.line(20, 25, 190, 25);  // Dibuja una línea horizontal
-
-    // Encabezado de la tabla de productos
-    let y = 30;
-    doc.setFontSize(12);
-
-    // Centrar los encabezados de la tabla
-    doc.text("PRODUCTO", 40, y);
-    doc.text("CANTIDAD", 100, y);
-    doc.text("PRECIO UNITARIO", 140, y);
-    doc.text("SUBTOTAL", 180, y);
-    y += 10;
-
-    // Línea divisoria para la cabecera de la tabla
-    doc.line(20, y, 190, y);
-    y += 5;
+    doc.text(`DIRECCIÓN: ${customerAddress.toUpperCase()}`, 20, 20);  // Dirección en mayúsculas
 
     // Lista de productos
+    let y = 30;  // Iniciamos desde 30 en el eje Y
     let total = 0;
+
+    // Definir las posiciones de los encabezados
+    const headerX = 20;
+    const quantityX = 90;  // Posición de la columna de cantidad
+    const unitPriceX = 120; // Posición de la columna de precio unitario
+    const subtotalX = 160; // Posición de la columna de subtotal
+
+    // Título de las columnas
+    doc.setFontSize(12);
+    doc.text("PRODUCTO", headerX, y);
+    doc.text("CANTIDAD", quantityX, y);
+    doc.text("PRECIO UNITARIO", unitPriceX, y);
+    doc.text("SUBTOTAL", subtotalX, y);
+
+    y += 10;  // Espacio después de los encabezados
+
+    // Divisores verticales
+    doc.setDrawColor(0, 0, 0);  // Color de las líneas
+    doc.line(headerX, y, headerX, y + 50);
+    doc.line(quantityX, y, quantityX, y + 50);
+    doc.line(unitPriceX, y, unitPriceX, y + 50);
+    doc.line(subtotalX, y, subtotalX, y + 50);
+
+    // Imprimir productos
     cart.forEach((item) => {
-      const productName = item.name.toUpperCase();  // Producto en mayúsculas
-      const quantity = item.quantity;
-      const priceUnit = item.price;
-      const subtotal = priceUnit * quantity;
+      const productLine = `${item.name.toUpperCase()}`;
+      const quantityLine = `${item.quantity}`;
+      const unitPriceLine = `$${item.price.toFixed(2)}`;
+      const subtotalLine = `$${(item.price * item.quantity).toFixed(2)}`;
+      
+      // Mostrar productos y precios
+      doc.text(productLine, headerX, y + 10);
+      doc.text(quantityLine, quantityX, y + 10);
+      doc.text(unitPriceLine, unitPriceX, y + 10);
+      doc.text(subtotalLine, subtotalX, y + 10);
 
-      // Centramos el texto de cada producto, cantidad, precio unitario y subtotal
-      const productWidth = 40;
-      const quantityWidth = 100;
-      const priceWidth = 140;
-      const subtotalWidth = 180;
-
-      doc.text(productName, productWidth, y, null, null, "center");
-      doc.text(quantity.toString(), quantityWidth, y, null, null, "center");
-      doc.text(`$${priceUnit.toFixed(2)}`, priceWidth, y, null, null, "center");
-      doc.text(`$${subtotal.toFixed(2)}`, subtotalWidth, y, null, null, "center");
+      // Actualizar la posición vertical
       y += 10;
-      total += subtotal;
-
-      // Líneas divisorias por producto (verticales)
-      doc.setLineWidth(0.5);
-      doc.line(productWidth, y - 10, productWidth, y); // Línea vertical entre Producto y Cantidad
-      doc.line(quantityWidth, y - 10, quantityWidth, y); // Línea vertical entre Cantidad y Precio Unitario
-      doc.line(priceWidth, y - 10, priceWidth, y); // Línea vertical entre Precio Unitario y Subtotal
-      doc.line(subtotalWidth, y - 10, subtotalWidth, y); // Línea vertical entre Subtotal y el final
-
-      // Línea divisoria por cada producto
-      doc.line(20, y, 190, y);
-      y += 5;
+      total += item.price * item.quantity;
     });
 
-    // Línea divisoria antes del total
-    doc.line(20, y, 190, y);
-    y += 10;
+    // Agregar divisores después de cada producto
+    doc.line(headerX, y, headerX, y + 20);
+    doc.line(quantityX, y, quantityX, y + 20);
+    doc.line(unitPriceX, y, unitPriceX, y + 20);
+    doc.line(subtotalX, y, subtotalX, y + 20);
 
-    // Total final
-    doc.setFontSize(14);
-    doc.text(`TOTAL: $${total.toFixed(2)}`, 120, y, null, null, "center");
+    // Subtotal
+    doc.text("SUBTOTAL", headerX, y + 10);
+    doc.text(`$${total.toFixed(2)}`, subtotalX, y + 10);
 
-    // Crear línea divisoria al final
-    doc.line(20, y + 5, 190, y + 5); // Línea debajo del total
+    // Total
+    y += 20;
+    doc.text("TOTAL", headerX, y);
+    doc.text(`$${total.toFixed(2)}`, subtotalX, y, { align: "right" });  // Total a la derecha
 
     // Convertir el PDF a blob para enviarlo
     const pdfBlob = doc.output("blob");
