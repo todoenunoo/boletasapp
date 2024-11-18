@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Cargar productos desde localStorage
   const products = JSON.parse(localStorage.getItem("products")) || [];
-
+  
   // Cargar los productos en el dropdown
   products.forEach((product, index) => {
     const option = document.createElement("option");
@@ -62,24 +62,42 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Título de la boleta
     doc.setFontSize(16);
-    doc.text("Boleta de Compra", 20, 10);
-
-    // Dirección del cliente
+    doc.text("Boleta de Compra", 105, 10, null, null, 'center');
     doc.setFontSize(12);
-    doc.text(`Dirección: ${customerAddress}`, 20, 20);
+    doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 20, 20);
+    doc.text(`Dirección del Cliente: ${customerAddress}`, 20, 25);
+
+    // Línea separadora
+    doc.line(20, 30, 190, 30);
+
+    // Encabezados de la tabla de productos
+    let y = 40;
+    doc.text("Producto", 20, y);
+    doc.text("Cantidad", 120, y);
+    doc.text("Subtotal", 160, y);
+
+    // Línea separadora
+    y += 10;
+    doc.line(20, y, 190, y);
 
     // Lista de productos
-    let y = 30;
     let total = 0;
-    cart.forEach((item) => {
-      const line = `${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`;
-      doc.text(line, 20, y);
+    cart.forEach((item, index) => {
       y += 10;
-      total += item.price * item.quantity;
+      doc.text(item.name, 20, y);
+      doc.text(item.quantity.toString(), 120, y);
+      const subtotal = item.price * item.quantity;
+      doc.text(`$${subtotal.toFixed(2)}`, 160, y);
+      total += subtotal;
     });
 
+    // Línea separadora
+    y += 10;
+    doc.line(20, y, 190, y);
+
     // Total final
-    doc.text(`Total: $${total.toFixed(2)}`, 20, y);
+    y += 10;
+    doc.text(`Total: $${total.toFixed(2)}`, 120, y, null, null, 'center');
 
     // Convertir el PDF a blob para enviarlo
     const pdfBlob = doc.output("blob");
