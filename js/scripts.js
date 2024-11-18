@@ -62,11 +62,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Título de la boleta
     doc.setFontSize(16);
-    doc.text("Boleta de Compra", 105, 10, null, null, "center");
+    doc.text("BOLETA DE COMPRA", 105, 10, null, null, "center");
 
-    // Dirección del cliente
+    // Dirección del cliente (en mayúsculas)
     doc.setFontSize(12);
-    doc.text(`Dirección: ${customerAddress}`, 20, 20);
+    doc.text(`DIRECCIÓN: ${customerAddress.toUpperCase()}`, 20, 20);
 
     // Crear una línea divisoria
     doc.setLineWidth(0.5);
@@ -77,10 +77,10 @@ document.addEventListener("DOMContentLoaded", () => {
     doc.setFontSize(12);
 
     // Centrar los encabezados de la tabla
-    doc.text("Producto", 40, y);
-    doc.text("Cantidad", 100, y);
-    doc.text("Precio Unitario", 140, y);
-    doc.text("Subtotal", 180, y);
+    doc.text("PRODUCTO", 40, y);
+    doc.text("CANTIDAD", 100, y);
+    doc.text("PRECIO UNITARIO", 140, y);
+    doc.text("SUBTOTAL", 180, y);
     y += 10;
 
     // Línea divisoria para la cabecera de la tabla
@@ -90,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Lista de productos
     let total = 0;
     cart.forEach((item) => {
-      const productName = item.name;
+      const productName = item.name.toUpperCase();  // Producto en mayúsculas
       const quantity = item.quantity;
       const priceUnit = item.price;
       const subtotal = priceUnit * quantity;
@@ -126,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Total final
     doc.setFontSize(14);
-    doc.text(`Total: $${total.toFixed(2)}`, 120, y);
+    doc.text(`TOTAL: $${total.toFixed(2)}`, 120, y, null, null, "center");
 
     // Crear línea divisoria al final
     doc.line(20, y + 5, 190, y + 5); // Línea debajo del total
