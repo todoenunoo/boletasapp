@@ -1,68 +1,67 @@
-document.addEventListener('DOMContentLoaded', function () {
-  // Variables
-  const productForm = document.getElementById('product-form');
-  const productNameInput = document.getElementById('product-name');
-  const productPriceInput = document.getElementById('product-price');
-  const productList = document.getElementById('product-list');
+document.addEventListener("DOMContentLoaded", () => {
+  const productList = document.getElementById("product-list");
+  const addProductForm = document.getElementById("add-product-form");
+  const nameInput = document.getElementById("product-name");
+  const priceInput = document.getElementById("product-price");
 
-  // Cargar productos del localStorage y mostrarlos
-  function displayProducts() {
-    // Obtener productos del localStorage
-    const products = JSON.parse(localStorage.getItem('products')) || [];
-    
-    // Limpiar la lista
-    productList.innerHTML = '';
-    
-    // Mostrar productos
+  let products = JSON.parse(localStorage.getItem("products")) || [];
+
+  function renderProducts() {
+    productList.innerHTML = "";
     products.forEach((product, index) => {
-      const li = document.createElement('li');
-      li.textContent = `${product.name} - $${product.price.toFixed(2)} `;
-      li.innerHTML += `<button onclick="deleteProduct(${index})">Eliminar</button>`;
+      const li = document.createElement("li");
+      li.textContent = `${product.name} - $${product.price}`;
+      const editButton = document.createElement("button");
+      editButton.textContent = "Editar";
+      editButton.onclick = () => editProduct(index);
+      const deleteButton = document.createElement("button");
+      deleteButton.textContent = "Eliminar";
+      deleteButton.onclick = () => deleteProduct(index);
+      li.appendChild(editButton);
+      li.appendChild(deleteButton);
       productList.appendChild(li);
     });
   }
 
-  // Función para agregar un producto
-  productForm.addEventListener('submit', function (e) {
-    e.preventDefault();  // Evitar recarga de página al enviar el formulario
-    
-    const name = productNameInput.value;
-    const price = parseFloat(productPriceInput.value);
-    
-    if (!name || isNaN(price)) {
-      alert("Por favor, ingrese el nombre y el precio del producto.");
-      return;
-    }
+  function saveProducts() {
+    localStorage.setItem("products", JSON.stringify(products));
+  }
 
-    // Obtener productos existentes y agregar el nuevo
-    let products = JSON.parse(localStorage.getItem('products')) || [];
+  function addProduct(name, price) {
     products.push({ name, price });
-    
-    // Guardar productos en localStorage
-    localStorage.setItem('products', JSON.stringify(products));
+    saveProducts();
+    renderProducts();
+  }
 
-    // Limpiar los campos
-    productNameInput.value = '';
-    productPriceInput.value = '';
+  function editProduct(index) {
+    const newName = prompt("Nuevo nombre:", products[index].name);
+    const newPrice = parseFloat(prompt("Nuevo precio:", products[index].price));
+    if (newName && !isNaN(newPrice)) {
+      products[index].name = newName;
+      products[index].price = newPrice;
+      saveProducts();
+      renderProducts();
+    }
+  }
 
-    // Actualizar la lista de productos
-    displayProducts();
+  function deleteProduct(index) {
+    if (confirm("¿Estás seguro de eliminar este producto?")) {
+      products.splice(index, 1);
+      saveProducts();
+      renderProducts();
+    }
+  }
+
+  addProductForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = nameInput.value.trim();
+    const price = parseFloat(priceInput.value.trim());
+    if (name && !isNaN(price)) {
+      addProduct(name, price);
+      nameInput.value = "";
+      priceInput.value = "";
+    }
   });
 
-  // Función para eliminar un producto
-  window.deleteProduct = function (index) {
-    let products = JSON.parse(localStorage.getItem('products')) || [];
-    
-    // Eliminar el producto por índice
-    products.splice(index, 1);
-
-    // Guardar cambios en localStorage
-    localStorage.setItem('products', JSON.stringify(products));
-
-    // Actualizar la lista de productos
-    displayProducts();
-  };
-
-  // Mostrar los productos cuando la página se carga
-  displayProducts();
+  renderProducts();
 });

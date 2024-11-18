@@ -5,13 +5,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const boletaForm = document.getElementById("boleta-form");
   const sendEmailButton = document.getElementById("send-email");
   const sendEmailForm = document.getElementById("send-email-form");
-  const pdfFileInput = document.getElementById("pdf-file");
+  const boletaFileInput = document.getElementById("boleta-file");
+  const boletaMessageInput = document.getElementById("boleta-message");
 
-  // Cargar productos desde localStorage
-  const products = JSON.parse(localStorage.getItem("products")) || [];
-  console.log("Productos cargados:", products);  // Depuración
+  const products = [
+    { name: "Producto 1", price: 100 },
+    { name: "Producto 2", price: 200 },
+    { name: "Producto 3", price: 300 },
+  ];
 
-  // Cargar los productos en el dropdown
+  let cart = [];
+  let boletaCount = 1;
+
+  // Cargar productos en el select
   products.forEach((product, index) => {
     const option = document.createElement("option");
     option.value = index;
@@ -19,21 +25,16 @@ document.addEventListener("DOMContentLoaded", () => {
     productSelect.appendChild(option);
   });
 
-  const cart = [];
-
-  // Agregar productos al carrito
+  // Agregar producto al carrito
   boletaForm.addEventListener("submit", (e) => {
     e.preventDefault();
-
     const selectedIndex = productSelect.value;
     const quantity = parseInt(document.getElementById("product-quantity").value);
-    const product = products[selectedIndex];
-
-    console.log("Producto seleccionado:", product);  // Depuración
-    console.log("Cantidad:", quantity);  // Depuración
+    const address = document.getElementById("customer-address").value;
 
     if (quantity > 0) {
-      cart.push({ ...product, quantity });
+      const product = products[selectedIndex];
+      cart.push({ ...product, quantity, address });
       updateCart();
       updateTotal();
     }
@@ -56,62 +57,47 @@ document.addEventListener("DOMContentLoaded", () => {
     totalPrice.textContent = total.toFixed(2);
   }
 
-  // Generar el cuerpo del correo
-  function generateEmailBody() {
-    let emailBody = `
-      <h2>Boleta de Compra</h2>
-      <p><strong>Gracias por tu compra. A continuación, se detalla tu boleta:</strong></p>
-      <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; margin-bottom: 20px;">
-        <thead>
-          <tr>
-            <th>Producto</th>
-            <th>Cantidad</th>
-            <th>Precio</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody>`;
+  // Enviar boleta por correo
+  sendEmailButton.addEventListener("click", () => {
+    if (cart.length === 0) {
+      alert("El carrito está vacío.");
+      return;
+    }
 
-    // Agregar los productos al cuerpo del correo
-    cart.forEach(item => {
-      emailBody += `
-        <tr>
-          <td>${item.name}</td>
-          <td>${item.quantity}</td>
-          <td>$${item.price}</td>
-          <td>$${(item.price * item.quantity).toFixed(2)}</td>
-        </tr>`;
+    const address = cart[0].address; // Usar dirección del primer item
+    let boletaText = `========================================\n`;
+    boletaText += `           BOLETA DE COMPRA            \n`;
+    boletaText += `========================================\n\n`;
+    boletaText += `Dirección de Envío:\n${address}\n\n`;
+    boletaText += `Productos:\n`;
+    boletaText += `----------------------------------------\n`;
+
+    cart.forEach((item) => {
+      const line = `${item.name.padEnd(20)} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`;
+      boletaText += `${line}\n`;
     });
 
-    emailBody += `</tbody></table>`;
+    boletaText += `----------------------------------------\n`;
+    boletaText += `Subtotal: $${totalPrice.textContent}\n`;
+    boletaText += `========================================\n`;
+    boletaText += `Total: $${totalPrice.textContent}\n`;
+    boletaText += `========================================\n\n`;
+    boletaText += `Gracias por su compra.\n`;
 
-    // Total de la compra
-    emailBody += `<p><strong>Total de la Compra: $${totalPrice.textContent}</strong></p>`;
+    // Crear archivo de boleta
+    const boletaBlob = new Blob([boletaText], { type: "text/plain" });
+    const boletaFile = new File([boletaBlob], `boleta_${boletaCount}.txt`, { type: "text/plain" });
 
-    // Dirección de envío
-    emailBody += `<p><strong>Dirección de Envío:</strong> Calle Ficticia 123, Ciudad, País</p>`;
+    // Actualizar inputs del formulario
+    boletaMessageInput.value = `Boleta ${boletaCount}`;
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(boletaFile);
+    boletaFileInput.files = dataTransfer.files;
 
-    // Mensaje adicional
-    emailBody += `<p><strong>Gracias por tu preferencia. ¡Esperamos verte pronto!</strong></p>
-                  <p>Este es un correo automatizado, por favor no respondas.</p>`;
+    // Incrementar número de boleta
+    boletaCount++;
 
-    return emailBody;
-  }
-
-  // Función para enviar el correo
-  sendEmailButton.addEventListener("click", function(event) {
-    event.preventDefault();
-
-    // Generar el cuerpo del correo
-    const emailBody = generateEmailBody();
-
-    // Asignar el cuerpo generado al campo 'body' del formulario
-    document.getElementById('email-body').value = emailBody;
-
-    // Enviar el formulario
+    // Enviar formulario
     sendEmailForm.submit();
   });
-
-  // Mostrar el formulario de envío después de generar el PDF
-  sendEmailForm.style.display = "none";  // Escondido inicialmente
 });

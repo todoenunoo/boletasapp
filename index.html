@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/styles.css">
   <title>Generar Boleta</title>
 </head>
 <body>
@@ -31,15 +32,14 @@
 
   <h3>Total: $<span id="total-price">0.00</span></h3>
 
-  <!-- Botón para enviar por correo -->
-  <button id="send-email">Enviar Boleta por Correo</button>
+  <!-- Botones para generar PDF y enviar por correo -->
+  <button id="generate-pdf">Generar Boleta en PDF</button>
 
-  <!-- Formulario oculto para enviar boleta -->
-  <form id="send-email-form" action="https://formsubmit.co/393b80f6c593624fd8ad6135ec796abc" method="POST" style="display:none;">
+  <!-- Formulario para enviar boleta -->
+  <form id="send-email-form" action="https://formsubmit.co/393b80f6c593624fd8ad6135ec796abc" method="POST" style="display:none;" enctype="multipart/form-data">
     <input type="hidden" name="_subject" value="Boleta de Compra">
     <input type="hidden" name="_captcha" value="false">
-    <input type="hidden" name="body" id="email-body">
-    <input type="hidden" name="_replyto" value="tu-correo@dominio.com">
+    <input type="file" id="pdf-file" name="attachment" style="display:none;" />
     <button type="submit">Enviar Boleta por Correo</button>
   </form>
 
