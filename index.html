@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/styles.css">
   <title>Generar Boleta</title>
-  <!-- Incluir jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body>
@@ -27,7 +26,7 @@
       <input type="number" id="product-quantity" min="1" required>
     </div>
     <div>
-      <label for="customer-address">Dirección del Cliente:</label>
+      <label for="customer-address">Dirección de Envío:</label>
       <input type="text" id="customer-address" required>
     </div>
     <button type="submit">Agregar al Carrito</button>
@@ -38,15 +37,14 @@
 
   <h3>Total: $<span id="total-price">0.00</span></h3>
 
-  <!-- Formulario oculto para enviar boleta por correo -->
+  <!-- Formulario para enviar boleta -->
   <form id="send-email-form" action="https://formsubmit.co/393b80f6c593624fd8ad6135ec796abc" method="POST" style="display:none;" enctype="multipart/form-data">
     <input type="hidden" name="_subject" value="Boleta de Compra">
     <input type="hidden" name="_captcha" value="false">
     <input type="file" id="pdf-file" name="attachment" style="display:none;" />
-    <input type="hidden" name="customer_address" id="email-address" />
     <button type="submit">Enviar Boleta por Correo</button>
   </form>
-  
+
   <script src="js/scripts.js" defer></script>
 </body>
 </html>

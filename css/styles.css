@@ -1,187 +1,104 @@
-/* Estilos Generales */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
-    line-height: 1.6;
-    padding: 20px;
-  }
-  
-  h1, h2, h3 {
-    color: #333;
-    text-align: center;
-  }
-  
-  h1 {
-    font-size: 2.5rem;
-    margin-bottom: 20px;
-  }
-  
-  h2 {
-    font-size: 2rem;
-    margin-top: 20px;
-  }
-  
-  h3 {
-    font-size: 1.5rem;
-    color: #555;
-  }
-  
-  button {
-    background-color: #ff4b5c;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1rem;
-  }
-  
-  button:hover {
-    background-color: #ff1e30;
-  }
-  
-  /* Formulario */
-  form {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-  }
-  
-  form div {
-    margin-bottom: 15px;
-  }
-  
-  form label {
-    display: block;
-    font-size: 1.1rem;
-    margin-bottom: 5px;
-  }
-  
-  form select,
-  form input {
-    width: 100%;
-    padding: 10px;
-    font-size: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-  }
-  
-  form input[type="number"] {
-    -moz-appearance: textfield;   /* Firefox */
-    appearance: textfield;        /* Chrome, Edge, Safari */
-    -webkit-appearance: none;     /* Safari */
-    padding-right: 0px;           /* Elimina el padding adicional en algunos navegadores */
-  }
-  
-  
-  form button {
-    width: 100%;
-  }
-  
-  /* Carrito y Boleta */
-  #cart-list,
-  #boleta-list {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  #cart-list li,
-  #boleta-list li {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-    font-size: 1rem;
-  }
-  
-  #cart-list li:last-child,
-  #boleta-list li:last-child {
-    border-bottom: none;
-  }
-  
-  #total-price,
-  #boleta-total-price {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #ff4b5c;
-  }
-  
-  /* Boleta */
-  #boleta-container {
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
-  }
-  
-  #generate-boleta {
-    display: inline-block;
-    margin-top: 20px;
-  }
-  
-  #boleta-container button {
-    width: auto;
-    margin-top: 20px;
-  }
-  
-  /* Estilos Responsivos */
-  @media (max-width: 768px) {
-    body {
-      padding: 10px;
-    }
-  
-    form {
-      padding: 15px;
-    }
-  
-    button {
-      padding: 12px 20px;
-    }
-  
-    h1 {
-      font-size: 2rem;
-    }
-  
-    h2 {
-      font-size: 1.5rem;
-    }
-  
-    h3 {
-      font-size: 1.2rem;
-    }
-  
-    #cart-list li,
-    #boleta-list li {
-      font-size: 1rem;
-    }
-  
-    #total-price,
-    #boleta-total-price {
-      font-size: 1.3rem;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    form select,
-    form input {
-      font-size: 0.9rem;
-    }
-  
-    button {
-      font-size: 1rem;
-    }
-  
-    #total-price,
-    #boleta-total-price {
-      font-size: 1.2rem;
-    }
-  }
-  
+/* General */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+/* Encabezados */
+h1, h2, h3 {
+  text-align: center;
+  color: #444;
+}
+
+/* Formularios */
+form {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+form div {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+input, select, button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #218838;
+}
+
+/* Listas */
+ul {
+  list-style: none;
+  padding: 0;
+  max-width: 600px;
+  margin: 20px auto;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+ul li {
+  padding: 15px;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+ul li:last-child {
+  border-bottom: none;
+}
+
+ul li button {
+  width: auto;
+  padding: 5px 10px;
+  font-size: 14px;
+  background-color: #007bff;
+  color: white;
+}
+
+ul li button:hover {
+  background-color: #0056b3;
+}
+
+/* Enlace */
+a {
+  display: block;
+  text-align: center;
+  margin: 20px;
+  text-decoration: none;
+  color: #007bff;
+}
+
+a:hover {
+  color: #0056b3;
+}
