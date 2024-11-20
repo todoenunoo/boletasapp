@@ -3,32 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Generar Boleta</title>
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js"></script>
-  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
-  
-  <script src="js/scripts.js" defer></script>
   <link rel="stylesheet" href="css/styles.css">
+  <title>Generar Boleta</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body>
   <h1>Generar Boleta</h1>
 
+  <!-- Enlace para administrar productos -->
+  <a href="admin.html">Administrar Productos</a> <!-- Enlace agregado de nuevo -->
+
   <!-- Formulario para agregar productos al carrito -->
   <form id="boleta-form">
     <div>
-      <label for="product-filter">Buscar Producto:</label>
-      <input type="text" id="product-filter" placeholder="Buscar producto...">
+      <label for="product-select">Seleccionar Producto:</label>
       <select id="product-select" required>
-        <!-- Los productos se cargarán aquí -->
+        <!-- Opciones de productos se cargarán aquí -->
       </select>
     </div>
     <div>
       <label for="product-quantity">Cantidad:</label>
       <input type="number" id="product-quantity" min="1" required>
+    </div>
+    <div>
+      <label for="customer-address">Dirección del Cliente:</label>
+      <input type="text" id="customer-address" required>
     </div>
     <button type="submit">Agregar al Carrito</button>
   </form>
@@ -46,8 +45,10 @@
     <input type="hidden" name="_subject" value="Boleta de Compra">
     <input type="hidden" name="_captcha" value="false">
     <input type="file" id="pdf-file" name="attachment" style="display:none;" />
+    <input type="hidden" name="direccion" id="email-address">
     <button type="submit">Enviar Boleta por Correo</button>
   </form>
 
+  <script src="js/scripts.js" defer></script>
 </body>
 </html>
