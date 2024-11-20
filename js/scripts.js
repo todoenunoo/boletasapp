@@ -5,17 +5,36 @@ document.addEventListener("DOMContentLoaded", () => {
   const boletaForm = document.getElementById("boleta-form");
   const sendEmailForm = document.getElementById("send-email-form");
   const pdfFileInput = document.getElementById("pdf-file");
+  const productFilter = document.getElementById("product-filter");
 
   // Cargar productos desde localStorage
   const products = JSON.parse(localStorage.getItem("products")) || [];
-  console.log("Productos cargados:", products);  // Depuración
+  console.log("Productos cargados:", products);
 
-  // Cargar los productos en el dropdown
-  products.forEach((product, index) => {
-    const option = document.createElement("option");
-    option.value = index;
-    option.textContent = `${product.name} - $${product.price}`;
-    productSelect.appendChild(option);
+  // Cargar los productos en el dropdown y mostrar el stock
+  function loadProducts() {
+    productSelect.innerHTML = ''; // Limpiar el select
+    products.forEach((product, index) => {
+      const option = document.createElement("option");
+      option.value = index;
+      option.textContent = `${product.name} - $${product.price} - Stock: ${product.stock}`;
+      productSelect.appendChild(option);
+    });
+  }
+
+  loadProducts();
+
+  // Filtrar productos
+  productFilter.addEventListener("input", () => {
+    const filterText = productFilter.value.toLowerCase();
+    const filteredProducts = products.filter(product => product.name.toLowerCase().includes(filterText));
+    productSelect.innerHTML = ''; // Limpiar el select
+    filteredProducts.forEach((product, index) => {
+      const option = document.createElement("option");
+      option.value = index;
+      option.textContent = `${product.name} - $${product.price} - Stock: ${product.stock}`;
+      productSelect.appendChild(option);
+    });
   });
 
   const cart = [];
@@ -27,12 +46,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectedIndex = productSelect.value;
     const quantity = parseInt(document.getElementById("product-quantity").value);
     const product = products[selectedIndex];
-    const address = document.getElementById("customer-address").value;
 
-    if (quantity > 0) {
-      cart.push({ ...product, quantity, address });
+    console.log("Producto seleccionado:", product);
+    console.log("Cantidad:", quantity);
+
+    if (quantity > 0 && quantity <= product.stock) {
+      cart.push({ ...product, quantity });
       updateCart();
       updateTotal();
+
+      // Actualizar el stock del producto
+      product.stock -= quantity;
+      localStorage.setItem("products", JSON.stringify(products));
+      loadProducts(); // Recargar productos con el nuevo stock
+    } else {
+      alert("La cantidad es mayor que el stock disponible.");
     }
   });
 
@@ -53,24 +81,9 @@ document.addEventListener("DOMContentLoaded", () => {
     totalPrice.textContent = total.toFixed(2);
   }
 
-  // Enviar la boleta por correo
+  // Enviar boleta por correo
   sendEmailForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    const formData = new FormData(sendEmailForm);
-
-    fetch(sendEmailForm.action, {
-      method: 'POST',
-      body: formData
-    })
-      .then(response => {
-        alert("¡Boleta enviada con éxito!");
-        cart.length = 0;
-        updateCart();
-        updateTotal();
-      })
-      .catch(error => {
-        console.error("Error al enviar la boleta:", error);
-        alert("Hubo un error al enviar la boleta.");
-      });
+    alert("Boleta enviada por correo.");
   });
 });

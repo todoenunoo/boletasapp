@@ -102,3 +102,28 @@ a {
 a:hover {
   color: #0056b3;
 }
+/* Estilo para el filtro de productos */
+#product-filter {
+  margin-bottom: 10px;
+  padding: 5px;
+  width: 100%;
+  max-width: 300px;
+  margin-right: 10px;
+}
+
+/* Estilo para los productos en el select */
+#product-select {
+  padding: 10px;
+  width: 100%;
+  max-width: 300px;
+}
+
+/* Estilo para la lista del carrito */
+#cart-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+#cart-list li {
+  margin: 5px 0;
+}
