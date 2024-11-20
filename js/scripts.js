@@ -1,37 +1,51 @@
-document.addEventListener("DOMContentLoaded", () => {
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js';
+import { getFirestore, collection, getDocs, doc, updateDoc, increment } from 'https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js';
+
+// Configuración de Firebase
+const firebaseConfig = {
+  apiKey: "tu-api-key",
+  authDomain: "tu-project-id.firebaseapp.com",
+  projectId: "tu-project-id",
+  storageBucket: "tu-project-id.appspot.com",
+  messagingSenderId: "tu-sender-id",
+  appId: "tu-app-id",
+  measurementId: "tu-measurement-id"
+};
+
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Obtener productos de Firestore
+async function loadProducts() {
+  const productsRef = collection(db, 'products');
+  const querySnapshot = await getDocs(productsRef);
+  const products = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
   const productSelect = document.getElementById("product-select");
-  const cartList = document.getElementById("cart-list");
-  const totalPrice = document.getElementById("total-price");
-  const boletaForm = document.getElementById("boleta-form");
-  const sendEmailForm = document.getElementById("send-email-form");
-  const pdfFileInput = document.getElementById("pdf-file");
+  products.forEach((product, index) => {
+    const option = document.createElement("option");
+    option.value = product.id;
+    option.textContent = `${product.name} - $${product.price} - Stock: ${product.stock}`;
+    productSelect.appendChild(option);
+  });
+
+  return products;
+}
+
+// Cargar productos cuando la página cargue
+loadProducts().then(products => {
   const productFilter = document.getElementById("product-filter");
 
-  // Cargar productos desde localStorage
-  const products = JSON.parse(localStorage.getItem("products")) || [];
-  console.log("Productos cargados:", products);
-
-  // Cargar los productos en el dropdown y mostrar el stock
-  function loadProducts() {
-    productSelect.innerHTML = ''; // Limpiar el select
-    products.forEach((product, index) => {
-      const option = document.createElement("option");
-      option.value = index;
-      option.textContent = `${product.name} - $${product.price} - Stock: ${product.stock}`;
-      productSelect.appendChild(option);
-    });
-  }
-
-  loadProducts();
-
-  // Filtrar productos
+  // Filtro de productos
   productFilter.addEventListener("input", () => {
     const filterText = productFilter.value.toLowerCase();
     const filteredProducts = products.filter(product => product.name.toLowerCase().includes(filterText));
-    productSelect.innerHTML = ''; // Limpiar el select
-    filteredProducts.forEach((product, index) => {
+    const productSelect = document.getElementById("product-select");
+    productSelect.innerHTML = ''; // Limpiar select
+    filteredProducts.forEach((product) => {
       const option = document.createElement("option");
-      option.value = index;
+      option.value = product.id;
       option.textContent = `${product.name} - $${product.price} - Stock: ${product.stock}`;
       productSelect.appendChild(option);
     });
@@ -39,32 +53,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const cart = [];
 
-  // Agregar productos al carrito
-  boletaForm.addEventListener("submit", (e) => {
+  // Agregar al carrito
+  const boletaForm = document.getElementById("boleta-form");
+  boletaForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const selectedIndex = productSelect.value;
+    const selectedProductId = document.getElementById("product-select").value;
     const quantity = parseInt(document.getElementById("product-quantity").value);
-    const product = products[selectedIndex];
+    const product = products.find(p => p.id === selectedProductId);
 
-    console.log("Producto seleccionado:", product);
-    console.log("Cantidad:", quantity);
-
-    if (quantity > 0 && quantity <= product.stock) {
+    if (quantity <= product.stock) {
       cart.push({ ...product, quantity });
       updateCart();
       updateTotal();
 
-      // Actualizar el stock del producto
-      product.stock -= quantity;
-      localStorage.setItem("products", JSON.stringify(products));
-      loadProducts(); // Recargar productos con el nuevo stock
+      // Reducir stock en Firestore
+      const productRef = doc(db, 'products', selectedProductId);
+      await updateDoc(productRef, {
+        stock: increment(-quantity)
+      });
     } else {
-      alert("La cantidad es mayor que el stock disponible.");
+      alert("No hay suficiente stock.");
     }
   });
 
   function updateCart() {
+    const cartList = document.getElementById("cart-list");
     cartList.innerHTML = "";
     cart.forEach((item) => {
       const li = document.createElement("li");
@@ -74,6 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function updateTotal() {
+    const totalPrice = document.getElementById("total-price");
     let total = 0;
     cart.forEach((item) => {
       total += item.price * item.quantity;
@@ -81,9 +96,25 @@ document.addEventListener("DOMContentLoaded", () => {
     totalPrice.textContent = total.toFixed(2);
   }
 
-  // Enviar boleta por correo
-  sendEmailForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    alert("Boleta enviada por correo.");
+  // Generar PDF
+  document.getElementById("generate-pdf").addEventListener("click", () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.text("Boleta de Compra", 20, 20);
+    let y = 30;
+    cart.forEach((item) => {
+      doc.text(`${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`, 20, y);
+      y += 10;
+    });
+    doc.text(`Total: $${document.getElementById("total-price").textContent}`, 20, y + 10);
+
+    // Guardar como archivo
+    doc.save("boleta.pdf");
+
+    // Enviar por correo
+    const pdfFile = doc.output('blob');
+    document.getElementById('pdf-file').files = [new File([pdfFile], "boleta.pdf")];
+    document.getElementById('send-email-form').submit();
   });
 });
